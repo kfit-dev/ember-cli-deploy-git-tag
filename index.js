@@ -34,13 +34,23 @@ module.exports = {
         return new Promise(function(resolve, reject) {
           repo.createTag(tag, function(e) {
             if (e) {
-              _this.log(e, { color: 'red' });
               reject(e);
             } else {
-              _this.log("tagged "+tag, { verbose: true });
-              resolve();
+              resolve(repo, tag);
             }
           });
+        }).then(function(repo, tag) {
+          repo.push("origin", "master", ["--tags", tag], function(error, success) {
+            if (error) {
+              _this.log(error, { color: 'red' });
+              return Promise.reject(error)
+            } else {
+              _this.log("tagged "+tag, { verbose: true });
+              return Promise.resolve()
+            }
+          });
+        }, function(error) {
+          _this.log(e, { color: 'red' });
         });
       }
     });
